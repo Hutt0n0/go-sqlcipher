@@ -4,6 +4,7 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
+//go:build cgo
 // +build cgo
 
 package sqlite3
@@ -913,103 +914,104 @@ func (c *SQLiteConn) begin(ctx context.Context) (driver.Tx, error) {
 // The argument is may be either in parentheses or it may be separated from
 // the pragma name by an equal sign. The two syntaxes yield identical results.
 // In many pragmas, the argument is a boolean. The boolean can be one of:
-//    1 yes true on
-//    0 no false off
+//
+//	1 yes true on
+//	0 no false off
 //
 // You can specify a DSN string using a URI as the filename.
-//   test.db
-//   file:test.db?cache=shared&mode=memory
-//   :memory:
-//   file::memory:
 //
-//   mode
-//     Access mode of the database.
-//     https://www.sqlite.org/c3ref/open.html
-//     Values:
-//      - ro
-//      - rw
-//      - rwc
-//      - memory
+//	test.db
+//	file:test.db?cache=shared&mode=memory
+//	:memory:
+//	file::memory:
 //
-//   cache
-//     SQLite Shared-Cache Mode
-//     https://www.sqlite.org/sharedcache.html
-//     Values:
-//       - shared
-//       - private
+//	mode
+//	  Access mode of the database.
+//	  https://www.sqlite.org/c3ref/open.html
+//	  Values:
+//	   - ro
+//	   - rw
+//	   - rwc
+//	   - memory
 //
-//   immutable=Boolean
-//     The immutable parameter is a boolean query parameter that indicates
-//     that the database file is stored on read-only media. When immutable is set,
-//     SQLite assumes that the database file cannot be changed,
-//     even by a process with higher privilege,
-//     and so the database is opened read-only and all locking and change detection is disabled.
-//     Caution: Setting the immutable property on a database file that
-//     does in fact change can result in incorrect query results and/or SQLITE_CORRUPT errors.
+//	cache
+//	  SQLite Shared-Cache Mode
+//	  https://www.sqlite.org/sharedcache.html
+//	  Values:
+//	    - shared
+//	    - private
+//
+//	immutable=Boolean
+//	  The immutable parameter is a boolean query parameter that indicates
+//	  that the database file is stored on read-only media. When immutable is set,
+//	  SQLite assumes that the database file cannot be changed,
+//	  even by a process with higher privilege,
+//	  and so the database is opened read-only and all locking and change detection is disabled.
+//	  Caution: Setting the immutable property on a database file that
+//	  does in fact change can result in incorrect query results and/or SQLITE_CORRUPT errors.
 //
 // go-sqlite3 adds the following query parameters to those used by SQLite:
-//   _loc=XXX
-//     Specify location of time format. It's possible to specify "auto".
 //
-//   _mutex=XXX
-//     Specify mutex mode. XXX can be "no", "full".
+//	_loc=XXX
+//	  Specify location of time format. It's possible to specify "auto".
 //
-//   _txlock=XXX
-//     Specify locking behavior for transactions.  XXX can be "immediate",
-//     "deferred", "exclusive".
+//	_mutex=XXX
+//	  Specify mutex mode. XXX can be "no", "full".
 //
-//   _auto_vacuum=X | _vacuum=X
-//     0 | none - Auto Vacuum disabled
-//     1 | full - Auto Vacuum FULL
-//     2 | incremental - Auto Vacuum Incremental
+//	_txlock=XXX
+//	  Specify locking behavior for transactions.  XXX can be "immediate",
+//	  "deferred", "exclusive".
 //
-//   _busy_timeout=XXX"| _timeout=XXX
-//     Specify value for sqlite3_busy_timeout.
+//	_auto_vacuum=X | _vacuum=X
+//	  0 | none - Auto Vacuum disabled
+//	  1 | full - Auto Vacuum FULL
+//	  2 | incremental - Auto Vacuum Incremental
 //
-//   _case_sensitive_like=Boolean | _cslike=Boolean
-//     https://www.sqlite.org/pragma.html#pragma_case_sensitive_like
-//     Default or disabled the LIKE operation is case-insensitive.
-//     When enabling this options behaviour of LIKE will become case-sensitive.
+//	_busy_timeout=XXX"| _timeout=XXX
+//	  Specify value for sqlite3_busy_timeout.
 //
-//   _defer_foreign_keys=Boolean | _defer_fk=Boolean
-//     Defer Foreign Keys until outermost transaction is committed.
+//	_case_sensitive_like=Boolean | _cslike=Boolean
+//	  https://www.sqlite.org/pragma.html#pragma_case_sensitive_like
+//	  Default or disabled the LIKE operation is case-insensitive.
+//	  When enabling this options behaviour of LIKE will become case-sensitive.
 //
-//   _foreign_keys=Boolean | _fk=Boolean
-//     Enable or disable enforcement of foreign keys.
+//	_defer_foreign_keys=Boolean | _defer_fk=Boolean
+//	  Defer Foreign Keys until outermost transaction is committed.
 //
-//   _ignore_check_constraints=Boolean
-//     This pragma enables or disables the enforcement of CHECK constraints.
-//     The default setting is off, meaning that CHECK constraints are enforced by default.
+//	_foreign_keys=Boolean | _fk=Boolean
+//	  Enable or disable enforcement of foreign keys.
 //
-//   _journal_mode=MODE | _journal=MODE
-//     Set journal mode for the databases associated with the current connection.
-//     https://www.sqlite.org/pragma.html#pragma_journal_mode
+//	_ignore_check_constraints=Boolean
+//	  This pragma enables or disables the enforcement of CHECK constraints.
+//	  The default setting is off, meaning that CHECK constraints are enforced by default.
 //
-//   _locking_mode=X | _locking=X
-//     Sets the database connection locking-mode.
-//     The locking-mode is either NORMAL or EXCLUSIVE.
-//     https://www.sqlite.org/pragma.html#pragma_locking_mode
+//	_journal_mode=MODE | _journal=MODE
+//	  Set journal mode for the databases associated with the current connection.
+//	  https://www.sqlite.org/pragma.html#pragma_journal_mode
 //
-//   _query_only=Boolean
-//     The query_only pragma prevents all changes to database files when enabled.
+//	_locking_mode=X | _locking=X
+//	  Sets the database connection locking-mode.
+//	  The locking-mode is either NORMAL or EXCLUSIVE.
+//	  https://www.sqlite.org/pragma.html#pragma_locking_mode
 //
-//   _recursive_triggers=Boolean | _rt=Boolean
-//     Enable or disable recursive triggers.
+//	_query_only=Boolean
+//	  The query_only pragma prevents all changes to database files when enabled.
 //
-//   _secure_delete=Boolean|FAST
-//     When secure_delete is on, SQLite overwrites deleted content with zeros.
-//     https://www.sqlite.org/pragma.html#pragma_secure_delete
+//	_recursive_triggers=Boolean | _rt=Boolean
+//	  Enable or disable recursive triggers.
 //
-//   _synchronous=X | _sync=X
-//     Change the setting of the "synchronous" flag.
-//     https://www.sqlite.org/pragma.html#pragma_synchronous
+//	_secure_delete=Boolean|FAST
+//	  When secure_delete is on, SQLite overwrites deleted content with zeros.
+//	  https://www.sqlite.org/pragma.html#pragma_secure_delete
 //
-//   _writable_schema=Boolean
-//     When this pragma is on, the SQLITE_MASTER tables in which database
-//     can be changed using ordinary UPDATE, INSERT, and DELETE statements.
-//     Warning: misuse of this pragma can easily result in a corrupt database file.
+//	_synchronous=X | _sync=X
+//	  Change the setting of the "synchronous" flag.
+//	  https://www.sqlite.org/pragma.html#pragma_synchronous
 //
-//
+//	_writable_schema=Boolean
+//	  When this pragma is on, the SQLITE_MASTER tables in which database
+//	  can be changed using ordinary UPDATE, INSERT, and DELETE statements.
+//	  Warning: misuse of this pragma can easily result in a corrupt database file.
 func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	if C.sqlite3_threadsafe() == 0 {
 		return nil, errors.New("sqlite library was not compiled for thread-safe operation")
@@ -1046,6 +1048,10 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	// SQLCipher PRAGMA's
 	pragmaKey := ""
 	pragmaCipherPageSize := -1
+	pragma_cipher_use_hmac := ""
+	pragma_kdf_iter := ""
+	pragma_cipher_hmac_algorithm := ""
+	pragma_cipher_kdf_algorithm := ""
 
 	pos := strings.IndexRune(dsn, '?')
 	if pos >= 1 {
@@ -1387,6 +1393,25 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 			pragmaCipherPageSize = pageSize
 		}
 
+		//_pragma_kdf_iter
+		if val := params.Get("_pragma_kdf_iter"); val != "" {
+			pragma_kdf_iter = val
+		}
+
+		//_pragma_cipher_hmac_algorithm
+		if val := params.Get("_pragma_cipher_hmac_algorithm"); val != "" {
+			pragma_cipher_hmac_algorithm = val
+		}
+		//_pragma_cipher_kdf_algorithm
+		if val := params.Get("_pragma_cipher_kdf_algorithm"); val != "" {
+			pragma_cipher_kdf_algorithm = val
+		}
+
+		//_pragma_cipher_use_hmac
+		if val := params.Get("_pragma_cipher_use_hmac"); val != "" {
+			pragma_cipher_use_hmac = val
+		}
+
 		if !strings.HasPrefix(dsn, "file:") {
 			dsn = dsn[:pos]
 		}
@@ -1445,6 +1470,38 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	if pragmaCipherPageSize != -1 {
 		query := fmt.Sprintf("PRAGMA cipher_page_size = %d;",
 			pragmaCipherPageSize)
+		if err := exec(query); err != nil {
+			C.sqlite3_close_v2(db)
+			return nil, err
+		}
+	}
+
+	if pragma_cipher_use_hmac != "" {
+		query := fmt.Sprintf("PRAGMA cipher_use_hmac = %s;", pragma_cipher_use_hmac)
+		if err := exec(query); err != nil {
+			C.sqlite3_close_v2(db)
+			return nil, err
+		}
+	}
+
+	if pragma_kdf_iter != "" {
+		query := fmt.Sprintf("PRAGMA kdf_iter = %s;", pragma_kdf_iter)
+		if err := exec(query); err != nil {
+			C.sqlite3_close_v2(db)
+			return nil, err
+		}
+	}
+
+	if pragma_cipher_hmac_algorithm != "" {
+		query := fmt.Sprintf("PRAGMA cipher_hmac_algorithm = %s;", pragma_cipher_hmac_algorithm)
+		if err := exec(query); err != nil {
+			C.sqlite3_close_v2(db)
+			return nil, err
+		}
+	}
+
+	if pragma_cipher_kdf_algorithm != "" {
+		query := fmt.Sprintf("PRAGMA cipher_kdf_algorithm = %s;", pragma_cipher_kdf_algorithm)
 		if err := exec(query); err != nil {
 			C.sqlite3_close_v2(db)
 			return nil, err
