@@ -71,6 +71,20 @@ to check whether a database file is encrypted or not.
 Examples can be found under the `./_example` directory
 
 
+### 2024-5-22 
+增加对如下查询参数的识别能力：
+PRAGMA cipher_use_hmac = ;
+PRAGMA kdf_iter = ;
+PRAGMA cipher_hmac_algorithm =;
+PRAGMA cipher_kdf_algorithm =;
+```go
+	dbname := fmt.Sprintf("message.db?_pragma_key=%s"+
+		"&_pragma_cipher_page_size=1024"+
+		"&_pragma_cipher_use_hmac=off"+
+		"&_pragma_kdf_iter=4000"+
+		"&_pragma_cipher_hmac_algorithm=HMAC_SHA1"+
+		"&_pragma_cipher_kdf_algorithm=PBKDF2_HMAC_SHA1", key)
+```
 ### License
 
 The code of the originating packages is covered by their respective licenses.
